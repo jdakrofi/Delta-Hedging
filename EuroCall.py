@@ -42,20 +42,24 @@ class EuropeanCall:
         numerator = term1 - term2
         return 1 - stats.norm.cdf(numerator/denominator)
 
-    def __init__(self, asset_price, strike_price, volatility, expiration_date, risk_free_rate, drift):
-        self.asset_price = asset_price
-        self.strike_price = strike_price
-        self.volatility = volatility
-        self.expiration_date = expiration_date
-        self.risk_free_rate = risk_free_rate
-        self.drift = drift
-        #print(expiration_date)
+    def __init__(self, asset_price, strike_price, volatility,
+                 expiration_date, risk_free_rate, drift):
 
-        dt = np.busday_count(datetime.date.today(), expiration_date)/252
-        #print(dt)
-        d1 = self.d1(asset_price, strike_price, risk_free_rate, volatility, dt)
-        d2 = self.d2(d1, volatility, dt)
-        self.dt = dt
-        self.price = self.price(asset_price, d1, strike_price, d2, risk_free_rate, dt)
+        # attach all args to self
+        for k, v in locals().items():
+            if k != "self":
+                setattr(self, k, v)
+
+        self.dt = np.busday_count(datetime.date.today(), self.expiration_date) / 252
+
+        d1 = self.d1(self.asset_price, self.strike_price,
+                     self.risk_free_rate, self.volatility, self.dt)
+
+        d2 = self.d2(d1, self.volatility, self.dt)
+
+        
+        self.price = self.price(self.asset_price, d1,
+                                self.strike_price, d2,
+                                self.risk_free_rate, self.dt)
+
         self.delta = self.delta(d1)
-
